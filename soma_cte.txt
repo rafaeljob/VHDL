@@ -1,0 +1,22 @@
+Text Segment
+0x00400000  0x3c011001  lui $1,0x1001         12           la      $t0,array       # o registrador $t0 contém o endereço do vetor
+0x00400004  0x34280000  ori $8,$1,0x0000           
+0x00400008  0x3c011001  lui $1,0x1001         13           la      $t1,size        # obtém o endereço da posição da memória de dados onde se guarda
+0x0040000c  0x3429002c  ori $9,$1,0x002c           
+0x00400010  0x8d290000  lw $9,0x0000($9)      15           lw      $t1,0($t1)      # o registrador $t1 contém o tamanho do vetor
+0x00400014  0x3c011001  lui $1,0x1001         16           la      $t2,const       # obtém o endereço da constante const
+0x00400018  0x342a0030  ori $10,$1,0x0030          
+0x0040001c  0x8d4a0000  lw $10,0x0000($10)    17           lw      $t2,0($t2)      # o registrador $t2 contém a constante a somar
+0x00400020  0x19200006  blez $9,0x0006        18   loop:   blez    $t1,end         # se o tamanho chega a 0, fim do processamento
+0x00400024  0x8d0b0000  lw $11,0x0000($8)     19           lw      $t3,0($t0)      # obtém um elemento do vetor
+0x00400028  0x016a5821  addu $11,$11,$10      20           addu    $t3,$t3,$t2     # soma a constante
+0x0040002c  0xad0b0000  sw $11,0x0000($8)     21           sw      $t3,0($t0)      # atualiza o vetor
+0x00400030  0x25080004  addiu $8,$8,0x0004    22           addiu   $t0,$t0,4       # atualiza o apontador do vetor
+0x00400034  0x2529ffff  addiu $9,$9,0xffff    24           addiu   $t1,$t1,-1      # decrementa o contador de tamanho do vetor
+0x00400038  0x08100008  j 0x00400020          25           j       loop            # continua a execução
+0x0040003c  0x03e00008  jr $31                27   end:    jr       $ra				# Agora volta para o programa monitor
+
+Data Segment
+
+0x10010000    0x00000012 0x000000ff 0x00000003 0x00000014 0x00000878 0x00000031 0x00000062 0x00000010 
+0x10010020    0x00000005 0x00000016 0x00000020 0x0000000b 0x00000100 0x00000000 0x00000000 0x00000000 
