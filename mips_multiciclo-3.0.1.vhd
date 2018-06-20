@@ -32,17 +32,106 @@ package p_MRstd is
             SLTIU, BEQ, BGEZ, BLEZ, BNE, J, JAL, JALR, JR, NOP, invalid_instruction);
  
     type microinstruction is record
-            CY1:   std_logic;       -- command of the first stage
-            CY2:   std_logic;       --    "    of the second stage
-            walu:  std_logic;       --    "    of the third stage
-            wmdr:  std_logic;       --    "    of the fourth stage
-            wpc:   std_logic;       -- PC write enable
+            --CY1:   std_logic;       -- command of the first stage
+            --CY2:   std_logic;       --    "    of the second stage
+            --walu:  std_logic;       --    "    of the third stage
+            --wmdr:  std_logic;       --    "    of the fourth stage
+            --wpc:   std_logic;       -- PC write enable
             wreg:  std_logic;       -- register bank write enable
             cem:   std_logic;       -- Chip enable and R_W controls
             rw:    std_logic;
             bw:    std_logic;       -- Byte-word control (mem write only)
             i:     inst_type;       -- operation specification
     end record;
+	 
+	 type BI_CONT is record
+		ir:	std_logic_vector(31 downto 0);
+		npc: 	std_logic_vector(31 downto 0);
+		i: 	inst_type;
+		wreg: std_logic;
+		rw: 	std_logic;
+		bw: 	std_logic;
+		cem: 	std_logic;
+		inst_branch:	std_logic;           
+		inst_grupo1: 	std_logic;
+		inst_grupoI: 	std_logic;
+	 end record;
+	 
+	 type DI_CONT is record
+		ir:	std_logic_vector(31 downto 0);
+		npc: 	std_logic_vector(31 downto 0);
+		i: 	inst_type;
+		wreg: std_logic;
+		rw: 	std_logic;
+		bw: 	std_logic;
+		cem: 	std_logic;
+		inst_branch:	std_logic;           
+		inst_grupo1: 	std_logic;
+		inst_grupoI: 	std_logic;
+		adS : std_logic_vector(4 downto 0);
+		cte_im : std_logic_vector(31 downto 0);
+		R1 : std_logic_vector(31 downto 0);
+		R2 : std_logic_vector(31 downto 0);
+	 end record;
+	 
+	 type EX_CONT is record
+		ir:	std_logic_vector(31 downto 0);
+		npc: 	std_logic_vector(31 downto 0);
+		i: 	inst_type;
+		wreg: std_logic;
+		rw: 	std_logic;
+		bw: 	std_logic;
+		cem: 	std_logic;
+		inst_branch:	std_logic;           
+		inst_grupo1: 	std_logic;
+		inst_grupoI: 	std_logic;
+		adS : std_logic_vector(4 downto 0);
+		IMED : std_logic_vector(31 downto 0);
+		RA : std_logic_vector(31 downto 0);
+		RB : std_logic_vector(31 downto 0);
+		outalu : std_logic_vector(31 downto 0);
+		salta: 	std_logic;
+	 end record;
+	 
+	 type ME_CONT is record
+		ir:	std_logic_vector(31 downto 0);
+		npc:	std_logic_vector(31 downto 0);
+		i:	inst_type;
+		wreg:	std_logic;
+		rw: 	std_logic;
+		bw: 	std_logic;
+		cem: 	std_logic;
+		inst_branch:	std_logic;           
+		inst_grupo1: 	std_logic;
+		inst_grupoI: 	std_logic;
+		adS :	std_logic_vector(4 downto 0);
+		IMED :	std_logic_vector(31 downto 0);
+		RA :	std_logic_vector(31 downto 0);
+		RB :	std_logic_vector(31 downto 0);
+		RALU :	std_logic_vector(31 downto 0);
+		salta : 	std_logic;
+		mdr_int : std_logic_vector(31 downto 0);
+	 end record;
+	 
+	 type WB_CONT is record
+		ir:	std_logic_vector(31 downto 0);
+		npc:	std_logic_vector(31 downto 0);
+		i:	inst_type;
+		wreg:	std_logic;
+		rw: 	std_logic;
+		bw: 	std_logic;
+		cem: 	std_logic;
+		inst_branch:	std_logic;           
+		inst_grupo1: 	std_logic;
+		inst_grupoI: 	std_logic;
+		adS :	std_logic_vector(4 downto 0);
+		IMED :	std_logic_vector(31 downto 0);
+		RA :	std_logic_vector(31 downto 0);
+		RB :	std_logic_vector(31 downto 0);
+		RALU :	std_logic_vector(31 downto 0);
+		salta : 	std_logic;
+		MDR : std_logic_vector(31 downto 0);
+	 end record;
          
 end p_MRstd;
 
@@ -182,48 +271,235 @@ library IEEE;
 use IEEE.Std_Logic_1164.all;
 use work.p_MRstd.all;
 
-entity BI_DI is
+entity BI_DI_BAR is
 		  generic( INIT_VALUE : STD_LOGIC_VECTOR(31 downto 0) := (others=>'0'));
         port(   ck, rst, ce : in std_logic;          
-                B_wreg, B_rw, B_bw, B_cem : in std_logic;
-					 D_wreg, D_rw, D_bw, D_cem : out std_logic;
-					 B_i : in inst_type;
-					 D_i : out inst_type;
-                B_ir : in std_logic_vector(31 downto 0);
-					 D_ir : out std_logic_vector(31 downto 0);
-					 B_npc : in std_logic_vector(31 downto 0);
-					 D_npc : out std_logic_vector(31 downto 0)
+                BI : in BI_CONT;
+					 DI : out DI_CONT
              );
-end BI_DI;
+end BI_DI_BAR;
 
-architecture BI_DI of BI_DI is
+architecture BI_DI_BAR of BI_DI_BAR is
 
 begin
 
 process(ck, rst)
   begin
        if rst = '1' then
-              D_ir <= INIT_VALUE(31 downto 0);
-				  D_i <= NOP;
-				  D_npc <= INIT_VALUE(31 downto 0);
-				  D_wreg <= INIT_VALUE(0);
-				  D_rw <= INIT_VALUE(0);
-				  D_bw <= INIT_VALUE(0);
-				  D_cem <= INIT_VALUE(0);
-       elsif ck'event and ck = '0' then	--
+		 
+			DI.ir <=	INIT_VALUE(31 downto 0);
+			DI.npc <= INIT_VALUE(31 downto 0);
+			DI.i <=	NOP;
+			DI.wreg <= INIT_VALUE(0);
+			DI.rw <= INIT_VALUE(0);
+			DI.bw	<= INIT_VALUE(0);
+			DI.cem <= INIT_VALUE(0);
+			DI.inst_branch <=	INIT_VALUE(0);          
+			DI.inst_grupo1 <=	INIT_VALUE(0);
+			DI.inst_grupoI <=	INIT_VALUE(0);
+			
+       elsif ck'event and ck = '1' then	--
            if ce = '1' then
-              D_ir <= B_ir;
-				  D_i <= B_i;
-				  D_npc <= B_npc;
-				  D_wreg <= B_wreg;
-				  D_rw <= B_rw;
-				  D_bw <= B_bw;
-				  D_cem <= B_cem; 
+			  
+				DI.ir <=	BI.ir;
+				DI.npc <= BI.npc;
+				DI.i <= BI.i;	
+				DI.wreg <= BI.wreg ;
+				DI.rw <= BI.rw; 
+				DI.bw	<= BI.bw; 
+				DI.cem <= BI.cem; 
+				DI.inst_branch <=	BI.inst_branch;         
+				DI.inst_grupo1 <= BI.inst_grupo1;	
+				DI.inst_grupoI <=	BI.inst_grupoI;
+				
            end if;
        end if;
   end process;
 
-end BI_DI;
+end BI_DI_BAR;
+
+library IEEE;
+use IEEE.Std_Logic_1164.all;
+use work.p_MRstd.all;
+
+entity DI_EX_BAR is
+		  generic( INIT_VALUE : STD_LOGIC_VECTOR(31 downto 0) := (others=>'0'));
+        port(   ck, rst, ce : in std_logic;          
+                DI : in DI_CONT;
+					 EX : out EX_CONT
+             );
+end DI_EX_BAR;
+
+architecture DI_EX_BAR of DI_EX_BAR is
+
+begin
+
+process(ck, rst)
+  begin
+       if rst = '1' then
+		 
+			EX.ir <=	INIT_VALUE;
+			EX.npc <= INIT_VALUE;
+			EX.i <=	NOP;
+			EX.wreg <= INIT_VALUE(0);
+			EX.rw <= INIT_VALUE(0);
+			EX.bw	<= INIT_VALUE(0);
+			EX.cem <= INIT_VALUE(0);
+			EX.inst_branch <=	INIT_VALUE(0);          
+			EX.inst_grupo1 <=	INIT_VALUE(0);
+			EX.inst_grupoI <=	INIT_VALUE(0);
+			EX.adS <= INIT_VALUE(4 downto 0);
+			EX.IMED <= INIT_VALUE;
+			EX.RA <= INIT_VALUE;
+			EX.RB <= INIT_VALUE;
+			
+       elsif ck'event and ck = '1' then	--
+           if ce = '1' then
+			  
+				EX.ir <=	DI.ir;
+				EX.npc <= DI.npc;
+				EX.i <= DI.i;	
+				EX.wreg <= DI.wreg ;
+				EX.rw <= DI.rw; 
+				EX.bw	<= DI.bw; 
+				EX.cem <= DI.cem; 
+				EX.inst_branch <=	DI.inst_branch;         
+				EX.inst_grupo1 <= DI.inst_grupo1;	
+				EX.inst_grupoI <=	DI.inst_grupoI;
+				EX.adS <= DI.adS;
+				EX.IMED <= DI.cte_im;
+				EX.RA <= DI.R1;
+				EX.RB <= DI.R2;
+				
+           end if;
+       end if;
+  end process;
+
+end DI_EX_BAR;
+
+library IEEE;
+use IEEE.Std_Logic_1164.all;
+use work.p_MRstd.all;
+
+entity EX_ME_BAR is
+		  generic( INIT_VALUE : STD_LOGIC_VECTOR(31 downto 0) := (others=>'0'));
+        port(   ck, rst, ce : in std_logic;          
+                EX : in EX_CONT;
+					 ME : out ME_CONT
+             );
+end EX_ME_BAR;
+
+architecture EX_ME_BAR of EX_ME_BAR is
+
+begin
+
+process(ck, rst)
+  begin
+       if rst = '1' then
+		 
+			ME.ir <=	INIT_VALUE;
+			ME.npc <= INIT_VALUE;
+			ME.i <=	NOP;
+			ME.wreg <= INIT_VALUE(0);
+			ME.rw <= INIT_VALUE(0);
+			ME.bw	<= INIT_VALUE(0);
+			ME.cem <= INIT_VALUE(0);
+			ME.inst_branch <=	INIT_VALUE(0);          
+			ME.inst_grupo1 <=	INIT_VALUE(0);
+			ME.inst_grupoI <=	INIT_VALUE(0);
+			ME.adS <= INIT_VALUE(4 downto 0);
+			ME.IMED <= INIT_VALUE;
+			ME.RA <= INIT_VALUE;
+			ME.RB <= INIT_VALUE;
+			ME.RALU <= INIT_VALUE;
+			ME.salta <=	INIT_VALUE(0);
+       elsif ck'event and ck = '1' then	--
+           if ce = '1' then
+			  
+				ME.ir <=	EX.ir;
+				ME.npc <= EX.npc;
+				ME.i <= EX.i;	
+				ME.wreg <= EX.wreg ;
+				ME.rw <= EX.rw; 
+				ME.bw	<= EX.bw; 
+				ME.cem <= EX.cem; 
+				ME.inst_branch <=	EX.inst_branch;         
+				ME.inst_grupo1 <= EX.inst_grupo1;	
+				ME.inst_grupoI <=	EX.inst_grupoI;
+				ME.adS <= EX.adS;
+				ME.IMED <= EX.IMED;
+				ME.RA <= EX.RA;
+				ME.RB <= EX.RB;
+				ME.RALU <= EX.outalu;
+				ME.salta <=	EX.salta;
+           end if;
+       end if;
+  end process;
+
+end EX_ME_BAR;
+
+library IEEE;
+use IEEE.Std_Logic_1164.all;
+use work.p_MRstd.all;
+
+entity ME_WB_BAR is
+		  generic( INIT_VALUE : STD_LOGIC_VECTOR(31 downto 0) := (others=>'0'));
+        port(   ck, rst, ce : in std_logic;          
+                ME : in ME_CONT;
+				WB : out WB_CONT
+             );
+end ME_WB_BAR;
+
+architecture ME_WB_BAR of ME_WB_BAR is
+
+begin
+
+process(ck, rst)
+  begin
+       if rst = '1' then
+		 
+			WB.ir <=	INIT_VALUE;
+			WB.npc <= INIT_VALUE;
+			WB.i <=	NOP;
+			WB.wreg <= INIT_VALUE(0);
+			WB.rw <= INIT_VALUE(0);
+			WB.bw	<= INIT_VALUE(0);
+			WB.cem <= INIT_VALUE(0);
+			WB.inst_branch <=	INIT_VALUE(0);          
+			WB.inst_grupo1 <=	INIT_VALUE(0);
+			WB.inst_grupoI <=	INIT_VALUE(0);
+			WB.adS <= INIT_VALUE(4 downto 0);
+			WB.IMED <= INIT_VALUE;
+			WB.RA <= INIT_VALUE;
+			WB.RB <= INIT_VALUE;
+			WB.RALU <= INIT_VALUE;
+			WB.salta <=	INIT_VALUE(0);
+			WB.MDR <= INIT_VALUE;
+       elsif ck'event and ck = '1' then	--
+           if ce = '1' then
+			  
+				WB.ir <=	ME.ir;
+				WB.npc <= ME.npc;
+				WB.i <= ME.i;	
+				WB.wreg <= ME.wreg ;
+				WB.rw <= ME.rw; 
+				WB.bw	<= ME.bw; 
+				WB.cem <= ME.cem; 
+				WB.inst_branch <=	ME.inst_branch;         
+				WB.inst_grupo1 <= ME.inst_grupo1;	
+				WB.inst_grupoI <=	ME.inst_grupoI;
+				WB.adS <= ME.adS;
+				WB.IMED <= ME.IMED;
+				WB.RA <= ME.RA;
+				WB.RB <= ME.RB;
+				WB.RALU <= ME.outalu;
+				WB.salta <=	ME.salta;
+				WB.MDR <= ME.mdr_int;
+           end if;
+       end if;
+  end process;
+
+end ME_WB_BAR;
 
 --++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 --++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -254,9 +530,10 @@ architecture datapath of datapath is
     signal inst_branch, inst_grupo1, inst_grupoI: std_logic;   
     signal salta : std_logic := '0';
 	 
-	 signal D_ir, D_npc : std_logic_vector(31 downto 0) := (others=> '0');
-	 signal D_i : inst_type;
-	 signal D_wreg, D_rw, D_bw, D_cem : std_logic := '0';
+	 signal BI : BI_CONT;
+	 signal DI : DI_CONT;
+	 signal EX : EX_CONT;
+	 signal ME : ME_CONT;
 	 
 begin
 
@@ -277,122 +554,130 @@ begin
   
    incpc <= pc + 4;
   
-   RNPC: entity work.regnbit port map(ck=>ck, rst=>rst, ce=>uins.CY1, D=>incpc,       Q=>npc);     
+   --RNPC: entity work.regnbit port map(ck=>ck, rst=>rst, ce=>uins.CY1, D=>incpc,       Q=>npc);     
            
    --RIR: entity work.regnbit  port map(ck=>ck, rst=>rst, ce=>uins.CY1, D=>instruction, Q=>IR);
 
    IR_OUT <= instruction;    -- IR is the datapath output signal to carry the instruction
              
    i_address <= pc;  -- connects PC output to the instruction memory address bus
+	
+		BI.ir <=	instruction;
+		BI.npc <= incpc;	
+		BI.i <=	uins.i;
+		BI.wreg <= uins.wreg;
+		BI.rw <= uins.rw;	
+		BI.bw	<= uins.bw;
+		BI.cem <= uins.cem;	
+		BI.inst_branch <=	inst_branch;           
+		BI.inst_grupo1 <=	inst_grupo1;
+		BI.inst_grupoI <=	inst_grupoI;
    
-   BI_DI: entity work.BI_DI port map(ck=>ck, rst=>rst, ce=>'1', B_ir=>instruction, D_ir=>D_ir,
-												B_npc=>npc, D_npc=>D_npc, B_i=>uins.i, D_i=>D_i, 
-												B_wreg=>uins.wreg, D_wreg=>D_wreg, 
-												B_rw=>uins.rw, D_rw=>D_rw, B_bw=>uins.bw, D_bw=>D_bw,
-												B_cem=>uins.cem, D_cem=>D_cem);
+   BI_DI_BAR: entity work.BI_DI_BAR port map(ck=>ck, rst=>rst, ce=>'1', BI=>BI, DI=>DI);
    --==============================================================================
    -- second stage
    --==============================================================================
                 
    -- The then clause is only used for logic shifts with shamt field       
-   adS <= IR(20 downto 16) when uins.i=SSLL or uins.i=SSRA or uins.i=SSRL else 
-          IR(25 downto 21);
+   DI.adS <= DI.ir(20 downto 16) when DI.i=SSLL or DI.i=SSRA or DI.i=SSRL else 
+          DI.ir(25 downto 21);
           
    REGS: entity work.reg_bank(reg_bank) port map
-        (ck=>ck, rst=>rst, wreg=>uins.wreg, AdRs=>adS, AdRt=>ir(20 downto 16), adRD=>adD,  
+        (ck=>ck, rst=>rst, wreg=>uins.wreg, AdRs=>DI.adS, AdRt=>DI.ir(20 downto 16), adRD=>adD,  
          Rd=>RIN, R1=>R1, R2=>R2);
     
    -- sign extension 
-   ext16 <=  x"FFFF" & IR(15 downto 0) when IR(15)='1' else
-             x"0000" & IR(15 downto 0);
+   ext16 <=  x"FFFF" & DI.ir(15 downto 0) when DI.ir(15)='1' else
+             x"0000" & DI.ir(15 downto 0);
     
    -- Immediate constant
-   cte_im <= ext16(29 downto 0)  & "00"     when inst_branch='1'     else
+   DI.cte_im <= ext16(29 downto 0)  & "00"     when DI.inst_branch='1'     else
                 -- branch address adjustment for word frontier
-             "0000" & IR(25 downto 0) & "00" when uins.i=J or uins.i=JAL else
+             "0000" & DI.ir(25 downto 0) & "00" when DI.i=J or DI.i=JAL else
                 -- J/JAL are word addressed. MSB four bits are defined at the ALU, not here!
-             x"0000" & IR(15 downto 0) when uins.i=ANDI or uins.i=ORI  or uins.i=XORI else
+             x"0000" & DI.ir(15 downto 0) when DI.i=ANDI or DI.i=ORI  or DI.i=XORI else
                 -- logic instructions with immediate operand are zero extended
              ext16;
                 -- The default case is used by addiu, lbu, lw, sbu and sw instructions
-             
+   DI.R1 <= R1;
+	DI.R2 <= R2;
    -- second stage registers
-   REG_S:  entity work.regnbit port map(ck=>ck, rst=>rst, ce=>uins.CY2, D=>R1,     Q=>RA);
+   --REG_S:  entity work.regnbit port map(ck=>ck, rst=>rst, ce=>uins.CY2, D=>R1,     Q=>RA);
 
-   REG_T:  entity work.regnbit port map(ck=>ck, rst=>rst, ce=>uins.CY2, D=>R2,     Q=>RB);
+   --REG_T:  entity work.regnbit port map(ck=>ck, rst=>rst, ce=>uins.CY2, D=>R2,     Q=>RB);
   
-   REG_IM: entity work.regnbit port map(ck=>ck, rst=>rst, ce=>uins.CY2, D=>cte_im, Q=>IMED);
- 
+   --REG_IM: entity work.regnbit port map(ck=>ck, rst=>rst, ce=>uins.CY2, D=>cte_im, Q=>IMED);
+	DI_EX_BAR: entity work.DI_EX_BAR port map(ck=>ck, rst=>rst, ce=>'1', DI=>DI, EX=>EX);
  
   --==============================================================================
    -- third stage
    --==============================================================================
                       
    -- select the first ALU operand                           
-   op1 <= npc  when inst_branch='1' else 
-          RA; 
+   op1 <= EX.npc  when EX.inst_branch='1' else 
+          EX.RA; 
      
    -- select the second ALU operand
-   op2 <= RB when inst_grupo1='1' or uins.i=SLTU or uins.i=SLT or uins.i=JR 
-                  or uins.i=SLLV or uins.i=SRAV or uins.i=SRLV else 
-          IMED; 
+   op2 <= EX.RB when EX.inst_grupo1='1' or EX.i=SLTU or EX.i=SLT or EX.i=JR 
+                  or EX.i=SLLV or EX.i=SRAV or EX.i=SRLV else 
+          EX.IMED; 
                  
    -- ALU instantiation
-   inst_alu: entity work.alu port map (op1=>op1, op2=>op2, outalu=>outalu, op_alu=>uins.i);
+   inst_alu: entity work.alu port map (op1=>op1, op2=>op2, outalu=>EX.outalu, op_alu=>EX.i);
                                    
    -- ALU register
-   REG_alu: entity work.regnbit  port map(ck=>ck, rst=>rst, ce=>uins.walu, D=>outalu, Q=>RALU);               
+   --REG_alu: entity work.regnbit  port map(ck=>ck, rst=>rst, ce=>uins.walu, D=>outalu, Q=>RALU);               
  
    -- evaluation of conditions to take the branch instructions
-   salta <=  '1' when ( (RA=RB  and uins.i=BEQ)  or (RA>=0  and uins.i=BGEZ) or
-                        (RA<=0  and uins.i=BLEZ) or (RA/=RB and uins.i=BNE) )  else
+   EX.salta <=  '1' when ( (EX.RA=EX.RB  and EX.i=BEQ)  or (EX.RA>=0  and EX.i=BGEZ) or
+                        (EX.RA<=0  and EX.i=BLEZ) or (EX.RA/=EX.RB and EX.i=BNE) )  else
              '0';
                   
-             
+   EX_ME_BAR: entity work.EX_ME_BAR port map(ck=>ck, rst=>rst, ce=>'1', EX=>EX, ME=>ME);          
    --==============================================================================
    -- fourth stage
    --==============================================================================
      
-   d_address <= RALU;
+   d_address <= ME.RALU;
     
    -- tristate to control memory write    
-   data <= RB when (uins.cem='1' and uins.rw='0') else (others=>'Z');  
+   data <= ME.RB when (ME.cem='1' and ME.rw='0') else (others=>'Z');  
 
    -- single byte reading from memory  -- SUPONDO LITTLE ENDIAN
-   mdr_int <= data when uins.i=LW  else
+   ME.mdr_int <= data when ME.i=LW  else
               x"000000" & data(7 downto 0);
        
-   RMDR: entity work.regnbit  port map(ck=>ck, rst=>rst, ce=>uins.wmdr, D=>mdr_int, Q=>MDR);                 
-  
-   result <=    MDR when uins.i=LW  or uins.i=LBU else
-                RALU;
+   --RMDR: entity work.regnbit  port map(ck=>ck, rst=>rst, ce=>uins.wmdr, D=>mdr_int, Q=>MDR);                 
+	ME_WB_BAR: entity work.ME_WB_BAR port map(ck=>ck, rst=>rst, ce=>'1', ME=>ME, WB=>WB);
+   result <=    WB.MDR when WB.i=LW  or WB.i=LBU else
+                WB.RALU;
 
    --==============================================================================
    -- fifth stage
    --==============================================================================
 
    -- signal to be written into the register bank
-   RIN <= npc when (uins.i=JALR or uins.i=JAL) else result;
+   RIN <= WB.npc when (WB.i=JALR or WB.i=JAL) else result;
    
    -- register bank write address selection
-   adD <= "11111"               when uins.i=JAL else -- JAL writes in register $31
-         IR(15 downto 11)       when inst_grupo1='1' or uins.i=SLTU or uins.i=SLT
-                                                     or uins.i=JALR  
-						     or uins.i=SSLL or uins.i=SLLV
-						     or uins.i=SSRA or uins.i=SRAV
-						     or uins.i=SSRL or uins.i=SRLV
+   adD <= "11111"               when WB.i=JAL else -- JAL writes in register $31
+         WB.ir(15 downto 11)       when WB.inst_grupo1='1' or WB.i=SLTU or WB.i=SLT
+                                                     or WB.i=JALR  
+						     or WB.i=SSLL or WB.i=SLLV
+						     or WB.i=SSRA or WB.i=SRAV
+						     or WB.i=SSRL or WB.i=SRLV
                                                      else
-         IR(20 downto 16) -- inst_grupoI='1' or uins.i=SLTIU or uins.i=SLTI 
+         WB.ir(20 downto 16) -- inst_grupoI='1' or uins.i=SLTIU or uins.i=SLTI 
         ;                 -- or uins.i=LW or  uins.i=LBU  or uins.i=LUI, or default
     
-   dtpc <= result when (inst_branch='1' and salta='1') or uins.i=J    or uins.i=JAL or uins.i=JALR or uins.i=JR  
-           else npc;
+   dtpc <= result when (WB.inst_branch='1' and WB.salta='1') or WB.i=J    or WB.i=JAL or WB.i=JALR or WB.i=JR  
+           else incpc; --was else npc
    
    -- Code memory starting address: beware of the OFFSET! 
    -- The one below (x"00400000") serves for code generated 
    -- by the MARS simulator
    rpc: entity work.regnbit generic map(INIT_VALUE=>x"00400000")   
-                            port map(ck=>ck, rst=>rst, ce=>uins.wpc, D=>dtpc, Q=>pc);
+                            port map(ck=>ck, rst=>rst, ce=>'1', D=>dtpc, Q=>pc);
 
 end datapath;
 
