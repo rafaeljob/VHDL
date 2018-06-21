@@ -376,23 +376,29 @@ process(ck, rst)
 			EX.RB <= INIT_VALUE;
 			
        elsif ck'event and ck = '1' then	--
-           if ce = '1' then
-			  
-				EX.ir <=	DI.ir;
-				EX.npc <= DI.npc;
-				EX.i <= DI.i;	
-				EX.wreg <= DI.wreg ;
-				EX.rw <= DI.rw; 
-				EX.bw	<= DI.bw; 
-				EX.cem <= DI.cem; 
-				EX.inst_branch <=	DI.inst_branch;         
-				EX.inst_grupo1 <= DI.inst_grupo1;	
-				EX.inst_grupoI <=	DI.inst_grupoI;
-				EX.adS <= adS;
-				EX.IMED <= cte_im;
-				EX.RA <= R1;
-				EX.RB <= R2;
-				
+		 --Forwarding--congela o que está no estado
+		--	if (ce = '1' and ((WB.ir(26 downto 20)=EX.RA)or ME.ir(26 downto 20)=EX.RA))then
+		--		EX.RA=EX.RA;
+		--	elsif(ce = '1' and ((WB.ir(26 downto 20)=EX.RB)or ME.ir(26 downto 20)=EX.RB))then
+		--			EX.RA=EX.RA;
+					--	elsif ce = '1' then
+						if ce = '1' then
+							EX.ir <=	DI.ir;
+							EX.npc <= DI.npc;
+							EX.i <= DI.i;	
+							EX.wreg <= DI.wreg ;
+							EX.rw <= DI.rw; 
+							EX.bw	<= DI.bw; 
+							EX.cem <= DI.cem; 
+							EX.inst_branch <=	DI.inst_branch;         
+							EX.inst_grupo1 <= DI.inst_grupo1;	
+							EX.inst_grupoI <=	DI.inst_grupoI;
+							EX.adS <= adS;
+							EX.IMED <= cte_im;
+							EX.RA <= R1;
+							EX.RB <= R2;
+					--	end if;
+		--		end if;
            end if;
        end if;
   end process;
@@ -642,11 +648,25 @@ begin
                       
    -- select the first ALU operand                           
    op1 <= EX.npc  when EX.inst_branch='1' else 
+	--Fowarding--saida da Mem ou outalu para op1------------
+			 WB.MDR	when (WB.i=LBU or WB.i=LW or WB.i=LUI or WB.i=SB or WB.i=SB)
+							and ((WB.ir(26 downto 21)=EX.ir(20 downto 16))
+							or(WB.ir(26 downto 21)=EX.ir(20 downto 16))) else
+			 ME.RALU when (WB.i/=LBU or WB.i/=LW or WB.i/=LUI or WB.i/=SB or WB.i/=SB)
+							and (ME.ir(26 downto 21)=EX.ir(20 downto 16)) else
+	-------------------------------------------
           EX.RA; 
      
    -- select the second ALU operand
    op2 <= EX.RB when EX.inst_grupo1='1' or EX.i=SLTU or EX.i=SLT or EX.i=JR 
                   or EX.i=SLLV or EX.i=SRAV or EX.i=SRLV else 
+			--Forwarding-- Mem ou outalu para op2----------------
+			 WB.MDR	when (WB.i=LBU or WB.i=LW or WB.i=LUI or WB.i=SB or WB.i=SB)
+							and ((WB.ir(26 downto 21)=EX.ir(15 downto 11))
+							or (WB.ir(26 downto 21)=EX.ir(15 downto 11))) else
+			 ME.RALU when (WB.i/=LBU or WB.i/=LW or WB.i/=LUI or WB.i/=SB or WB.i/=SB)
+							and (ME.ir(26 downto 21)=EX.ir(15 downto 11)) else
+			--------------------------------------------
           EX.IMED; 
                  
    -- ALU instantiation
