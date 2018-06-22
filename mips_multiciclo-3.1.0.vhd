@@ -104,6 +104,7 @@ package p_MRstd is
 		RB :	std_logic_vector(31 downto 0);
 		RALU :	std_logic_vector(31 downto 0);
 		salta : 	std_logic;
+		adD : std_logic_vector(4 downto 0);
 	 end record;
 	 
 	 type WB_CONT is record
@@ -124,6 +125,7 @@ package p_MRstd is
 		RALU :	std_logic_vector(31 downto 0);
 		salta : 	std_logic;
 		MDR : std_logic_vector(31 downto 0);
+		adD : std_logic_vector(4 downto 0);
 	 end record;
          
 end p_MRstd;
@@ -414,6 +416,7 @@ entity EX_ME_BAR is
         port(   ck, rst, ce : in std_logic;          
                 EX : in EX_CONT;
 					 outalu : in STD_LOGIC_VECTOR(31 downto 0);
+					 adD : in STD_LOGIC_VECTOR(4 downto 0);
 					 salta : in std_logic;
 					 ME : out ME_CONT
              );
@@ -443,6 +446,7 @@ process(ck, rst)
 			ME.RB <= INIT_VALUE;
 			ME.RALU <= INIT_VALUE;
 			ME.salta <=	INIT_VALUE(0);
+			ME.adD <= INIT_VALUE(4 downto 0);
        elsif ck'event and ck = '1' then	--
            if ce = '1' then
 			  
@@ -462,6 +466,7 @@ process(ck, rst)
 				ME.RB <= EX.RB;
 				ME.RALU <= outalu;
 				ME.salta <=	salta;
+				ME.adD <= adD;
            end if;
        end if;
   end process;
@@ -506,6 +511,7 @@ process(ck, rst)
 			WB.RALU <= INIT_VALUE;
 			WB.salta <=	INIT_VALUE(0);
 			WB.MDR <= INIT_VALUE;
+			WB.adD <= INIT_VALUE(4 downto 0);
        elsif ck'event and ck = '1' then	--
            if ce = '1' then
 			  
@@ -526,6 +532,7 @@ process(ck, rst)
 				WB.RALU <= ME.RALU;
 				WB.salta <=	ME.salta;
 				WB.MDR <= mdr_int;
+				WB.adD <= ME.adD;
            end if;
        end if;
   end process;
@@ -557,10 +564,10 @@ end datapath;
 
 architecture datapath of datapath is
     signal incpc, pc, npc, IR,  result, R1, R2, RA, RB, RIN, ext16, cte_im, IMED, op1, op2, 
-           outalu, RALU, MDR, mdr_int, dtpc : std_logic_vector(31 downto 0) := (others=> '0');
+           outalu, RALU, MDR, mdr_int, dtpc, op1_R, op2_R : std_logic_vector(31 downto 0) := (others=> '0');
     signal adD, adS : std_logic_vector(4 downto 0) := (others=> '0');    
     signal inst_branch, inst_grupo1, inst_grupoI: std_logic;   
-    signal salta : std_logic := '0';
+    signal salta, ce, cex, x : std_logic := '0';
 	 
 	 signal BI : BI_CONT;
 	 signal DI : DI_CONT;
@@ -569,7 +576,7 @@ architecture datapath of datapath is
 	 signal WB : WB_CONT;
 	 
 begin
-
+	ce <= '1';
    -- auxiliary signals 
    inst_branch  <= '1' when uins.i=BEQ or uins.i=BGEZ or uins.i=BLEZ or uins.i=BNE else 
                   '0';
@@ -606,7 +613,7 @@ begin
 		BI.inst_grupo1 <=	inst_grupo1;
 		BI.inst_grupoI <=	inst_grupoI;
    
-   BI_DI_BAR: entity work.BI_DI_BAR port map(ck=>ck, rst=>rst, ce=>'1', BI=>BI, DI=>DI);
+   BI_DI_BAR: entity work.BI_DI_BAR port map(ck=>ck, rst=>rst, ce=>cex, BI=>BI, DI=>DI);
    --==============================================================================
    -- second stage
    --==============================================================================
@@ -616,7 +623,7 @@ begin
           DI.ir(25 downto 21);
        
    REGS: entity work.reg_bank(reg_bank) port map
-        (ck=>ck, rst=>rst, wreg=>WB.wreg, AdRs=>adS, AdRt=>DI.ir(20 downto 16), adRD=>adD,  
+        (ck=>ck, rst=>rst, wreg=>WB.wreg, AdRs=>WB.adS, AdRt=>DI.ir(20 downto 16), adRD=>adD,  
          Rd=>RIN, R1=>R1, R2=>R2);
     
    -- sign extension 
@@ -639,7 +646,7 @@ begin
    --REG_T:  entity work.regnbit port map(ck=>ck, rst=>rst, ce=>uins.CY2, D=>R2,     Q=>RB);
   
    --REG_IM: entity work.regnbit port map(ck=>ck, rst=>rst, ce=>uins.CY2, D=>cte_im, Q=>IMED);
-	DI_EX_BAR: entity work.DI_EX_BAR port map(ck=>ck, rst=>rst, ce=>'1', DI=>DI, EX=>EX,
+	DI_EX_BAR: entity work.DI_EX_BAR port map(ck=>ck, rst=>rst, ce=>cex, DI=>DI, EX=>EX,
 																R1=>R1, R2=>R2, cte_im=>cte_im, adS=>adS);
  
   --==============================================================================
@@ -647,30 +654,36 @@ begin
    --==============================================================================
                       
    -- select the first ALU operand                           
-   op1 <= EX.npc  when EX.inst_branch='1' else 
-	--Fowarding--saida da Mem ou outalu para op1------------
-			 WB.MDR	when (WB.i=LBU or WB.i=LW or WB.i=LUI or WB.i=SB or WB.i=SB)
-							and ((WB.ir(26 downto 21)=EX.ir(20 downto 16))
-							or(WB.ir(26 downto 21)=EX.ir(20 downto 16))) else
-			 ME.RALU when (WB.i/=LBU or WB.i/=LW or WB.i/=LUI or WB.i/=SB or WB.i/=SB)
-							and (ME.ir(26 downto 21)=EX.ir(20 downto 16)) else
-	-------------------------------------------
-          EX.RA; 
+   op1 <= EX.npc  when EX.inst_branch='1' else EX.RA; 
      
    -- select the second ALU operand
    op2 <= EX.RB when EX.inst_grupo1='1' or EX.i=SLTU or EX.i=SLT or EX.i=JR 
                   or EX.i=SLLV or EX.i=SRAV or EX.i=SRLV else 
-			--Forwarding-- Mem ou outalu para op2----------------
-			 WB.MDR	when (WB.i=LBU or WB.i=LW or WB.i=LUI or WB.i=SB or WB.i=SB)
-							and ((WB.ir(26 downto 21)=EX.ir(15 downto 11))
-							or (WB.ir(26 downto 21)=EX.ir(15 downto 11))) else
-			 ME.RALU when (WB.i/=LBU or WB.i/=LW or WB.i/=LUI or WB.i/=SB or WB.i/=SB)
-							and (ME.ir(26 downto 21)=EX.ir(15 downto 11)) else
-			--------------------------------------------
-          EX.IMED; 
+          EX.IMED;
+			 
+	op1_R <= ME.RALU when (ME.adD = EX.adS) and ME.wreg='1' and (WB.i/=LBU or WB.i/=LW) else 
+				WB.MDR when (WB.adD = EX.adS) and (WB.i=LBU or WB.i=LW) else op1;
+				
+	op2_R <= ME.RALU when (ME.adD=EX.ir(20 downto 16)) and ME.wreg='1' and (WB.i/=LBU or WB.i/=LW) else 
+				WB.MDR when (WB.adD=EX.ir(20 downto 16)) and (WB.i=LBU or WB.i=LW) else op2;
+				
+	cex <= ce and(x);
+	x <= '0' when (WB.adD = EX.ir(20 downto 16)) and (WB.i=LBU or WB.i=LW) else
+		  '0'	when (WB.adD = EX.adS) and (WB.i=LBU or WB.i=LW) else '1';
+					  
+	-- register bank write address selection
+   adD <= "11111"               when EX.i=JAL else -- JAL writes in register $31
+         EX.ir(15 downto 11)       when EX.inst_grupo1='1' or EX.i=SLTU or EX.i=SLT
+                                                     or EX.i=JALR  
+						     or EX.i=SSLL or EX.i=SLLV
+						     or EX.i=SSRA or EX.i=SRAV
+						     or EX.i=SSRL or EX.i=SRLV
+                                                     else
+         EX.ir(20 downto 16) -- inst_grupoI='1' or uins.i=SLTIU or uins.i=SLTI 
+        ;                 -- or uins.i=LW or  uins.i=LBU  or uins.i=LUI, or default		 
                  
    -- ALU instantiation
-   inst_alu: entity work.alu port map (op1=>op1, op2=>op2, outalu=>outalu, op_alu=>EX.i);
+   inst_alu: entity work.alu port map (op1=>op1_R, op2=>op2_R, outalu=>outalu, op_alu=>EX.i);
                                    
    -- ALU register
    --REG_alu: entity work.regnbit  port map(ck=>ck, rst=>rst, ce=>uins.walu, D=>outalu, Q=>RALU);               
@@ -680,8 +693,8 @@ begin
                         (EX.RA<=0  and EX.i=BLEZ) or (EX.RA/=EX.RB and EX.i=BNE) )  else
              '0';
                   
-   EX_ME_BAR: entity work.EX_ME_BAR port map(ck=>ck, rst=>rst, ce=>'1', EX=>EX, ME=>ME,
-															outalu=>outalu, salta=>salta);          
+   EX_ME_BAR: entity work.EX_ME_BAR port map(ck=>ck, rst=>rst, ce=>cex, EX=>EX, ME=>ME,
+															outalu=>outalu, salta=>salta, adD=>adD);          
    --==============================================================================
    -- fourth stage
    --==============================================================================
@@ -709,17 +722,6 @@ begin
 
    -- signal to be written into the register bank
    RIN <= WB.npc when (WB.i=JALR or WB.i=JAL) else result;
-   
-   -- register bank write address selection
-   adD <= "11111"               when WB.i=JAL else -- JAL writes in register $31
-         WB.ir(15 downto 11)       when WB.inst_grupo1='1' or WB.i=SLTU or WB.i=SLT
-                                                     or WB.i=JALR  
-						     or WB.i=SSLL or WB.i=SLLV
-						     or WB.i=SSRA or WB.i=SRAV
-						     or WB.i=SSRL or WB.i=SRLV
-                                                     else
-         WB.ir(20 downto 16) -- inst_grupoI='1' or uins.i=SLTIU or uins.i=SLTI 
-        ;                 -- or uins.i=LW or  uins.i=LBU  or uins.i=LUI, or default
     
    dtpc <= result when (WB.inst_branch='1' and WB.salta='1') or WB.i=J    or WB.i=JAL or WB.i=JALR or WB.i=JR  
            else incpc; --was else npc
@@ -728,7 +730,7 @@ begin
    -- The one below (x"00400000") serves for code generated 
    -- by the MARS simulator
    rpc: entity work.regnbit_pc generic map(INIT_VALUE=>x"00400000")   
-                            port map(ck=>ck, rst=>rst, ce=>'1', D=>dtpc, Q=>pc);
+                            port map(ck=>ck, rst=>rst, ce=>cex, D=>dtpc, Q=>pc);
 
 end datapath;
 
