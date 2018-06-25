@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="/home/16104014/trab/CPU_tb_isim_beh.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="aux_functions" />
+            <top_module name="cpu_tb" />
+            <top_module name="p_mrstd" />
+            <top_module name="std_logic_1164" />
+            <top_module name="std_logic_arith" />
+            <top_module name="std_logic_signed" />
+            <top_module name="std_logic_unsigned" />
+            <top_module name="textio" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="53" />
+   <wvobject fp_name="/cpu_tb/cpu/dp/ck" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ck</obj_property>
+      <obj_property name="ObjectShortName">ck</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/rst" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/instruction" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">instruction[31:0]</obj_property>
+      <obj_property name="ObjectShortName">instruction[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/bubble" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bubble</obj_property>
+      <obj_property name="ObjectShortName">bubble</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/x" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">x</obj_property>
+      <obj_property name="ObjectShortName">x</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/cex" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cex</obj_property>
+      <obj_property name="ObjectShortName">cex</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/ce" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ce</obj_property>
+      <obj_property name="ObjectShortName">ce</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/salta" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">salta</obj_property>
+      <obj_property name="ObjectShortName">salta</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/jump" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">jump</obj_property>
+      <obj_property name="ObjectShortName">jump</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/flush" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">flush</obj_property>
+      <obj_property name="ObjectShortName">flush</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/ex_me_flush" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ex_me_flush</obj_property>
+      <obj_property name="ObjectShortName">ex_me_flush</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/di_ex_flush" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">di_ex_flush</obj_property>
+      <obj_property name="ObjectShortName">di_ex_flush</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/bi_di_flush" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bi_di_flush</obj_property>
+      <obj_property name="ObjectShortName">bi_di_flush</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/op2_r" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">op2_r[31:0]</obj_property>
+      <obj_property name="ObjectShortName">op2_r[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/op1_r" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">op1_r[31:0]</obj_property>
+      <obj_property name="ObjectShortName">op1_r[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider65" type="divider">
+      <obj_property name="label">bar</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/BI_DI_BAR/rst" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/BI_DI_BAR/ce" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ce</obj_property>
+      <obj_property name="ObjectShortName">ce</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/BI_DI_BAR/bi" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">bi</obj_property>
+      <obj_property name="ObjectShortName">bi</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/BI_DI_BAR/di" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">di</obj_property>
+      <obj_property name="ObjectShortName">di</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/BI_DI_BAR/init_value" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">init_value[31:0]</obj_property>
+      <obj_property name="ObjectShortName">init_value[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider66" type="divider">
+      <obj_property name="label">bar</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/DI_EX_BAR/rst" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/DI_EX_BAR/ce" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ce</obj_property>
+      <obj_property name="ObjectShortName">ce</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/DI_EX_BAR/di" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">di</obj_property>
+      <obj_property name="ObjectShortName">di</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/DI_EX_BAR/r1" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">r1[31:0]</obj_property>
+      <obj_property name="ObjectShortName">r1[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/DI_EX_BAR/r2" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">r2[31:0]</obj_property>
+      <obj_property name="ObjectShortName">r2[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/DI_EX_BAR/cte_im" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cte_im[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cte_im[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/DI_EX_BAR/ads" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ads[4:0]</obj_property>
+      <obj_property name="ObjectShortName">ads[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/DI_EX_BAR/ex" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ex</obj_property>
+      <obj_property name="ObjectShortName">ex</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/DI_EX_BAR/init_value" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">init_value[31:0]</obj_property>
+      <obj_property name="ObjectShortName">init_value[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider77" type="divider">
+      <obj_property name="label">bar</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/EX_ME_BAR/rst" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/EX_ME_BAR/ce" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ce</obj_property>
+      <obj_property name="ObjectShortName">ce</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/EX_ME_BAR/ex" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ex</obj_property>
+      <obj_property name="ObjectShortName">ex</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/EX_ME_BAR/outalu" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">outalu[31:0]</obj_property>
+      <obj_property name="ObjectShortName">outalu[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/EX_ME_BAR/add" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">add[4:0]</obj_property>
+      <obj_property name="ObjectShortName">add[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/EX_ME_BAR/salta" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">salta</obj_property>
+      <obj_property name="ObjectShortName">salta</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/EX_ME_BAR/me" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">me</obj_property>
+      <obj_property name="ObjectShortName">me</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/EX_ME_BAR/init_value" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">init_value[31:0]</obj_property>
+      <obj_property name="ObjectShortName">init_value[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider87" type="divider">
+      <obj_property name="label">bar</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/ME_WB_BAR/rst" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/ME_WB_BAR/ce" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ce</obj_property>
+      <obj_property name="ObjectShortName">ce</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/ME_WB_BAR/me" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">me</obj_property>
+      <obj_property name="ObjectShortName">me</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/ME_WB_BAR/mdr_int" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">mdr_int[31:0]</obj_property>
+      <obj_property name="ObjectShortName">mdr_int[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/ME_WB_BAR/wb" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">wb</obj_property>
+      <obj_property name="ObjectShortName">wb</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/ME_WB_BAR/init_value" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">init_value[31:0]</obj_property>
+      <obj_property name="ObjectShortName">init_value[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider95" type="divider">
+      <obj_property name="label">PC</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/rpc/rst" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/rpc/ce" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ce</obj_property>
+      <obj_property name="ObjectShortName">ce</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/rpc/d" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">d[31:0]</obj_property>
+      <obj_property name="ObjectShortName">d[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/rpc/q" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">q[31:0]</obj_property>
+      <obj_property name="ObjectShortName">q[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/cpu/dp/rpc/init_value" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">init_value[31:0]</obj_property>
+      <obj_property name="ObjectShortName">init_value[31:0]</obj_property>
+   </wvobject>
+</wave_config>
