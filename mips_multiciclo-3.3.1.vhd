@@ -464,7 +464,8 @@ process(ck, rst)
 				ME.IMED <= EX.IMED;
 				ME.RA <= RA_2;
 				ME.RB <= RB_2;
-				ME.RALU <= outalu;
+				ME.RALU <= outalu when ja_saltou = '0'else
+					   salva_endereco;
 				ME.salta <=	salta;
 				ME.adD <= adD;
            end if;
@@ -597,6 +598,80 @@ begin
 					"01" when auxB_WB='1' else "00";
 end forward_unit;
 
+library IEEE;
+use IEEE.Std_Logic_1164.all;
+use work.p_MRstd.all;
+
+entity dynamic_prediction_unit is
+    port(EX_inst_branch, ja_saltou,salva_endereco,ck_in,rst_in : in std_logic;
+			outalu:in std_logic_vector(31 downto 0);
+			saida_dyn_pred: out std_logic(31 downto 0)
+			);
+end dynamic_prediction_unit;
+--PT: Previsão Tomada
+--PT_2: Previsão tomada_2, porém, anteriormente não foi tomada a previsão, chegando aqui.
+--NT: Previsão Não Tomada
+--NT: Previsão Não Tomada_2, porém, anteriormente foi tomada a previsão, chegando aqui.
+architecture dynamic_prediction_unit of dynamic_prediction_unit is
+	type predicted_state is(PT,PT_2,NT,NT2_);	
+	signal st: predicted_state := PT;--st= state
+	signal next_st; predicted_state ;= PT;
+	signal conta_saltos<= std_logic;
+begin
+	fsm_moore_trasition:process(ck_in,rst_in)
+	begin
+		if(ck_in'event and ck_in ='1')then
+			if(rst_in = '1')then
+				st<= PT;
+			else
+				st<= next_st;
+			end if;
+		end if;
+	end process fsm_moore_transition;
+
+	conta_saltos<= ja_saltou;
+	
+	next_state:process(ck_in,rst_in,EX_inst_branch, ja_saltou)
+	begin
+		case st is
+			when PT =>
+				if(ck_in'event and ck_in'='1')then
+					if(conta_saltos ='1' )then
+						next_st <= PT;				
+					else
+						next_st<= PT_2;
+					end if;
+				end if;
+			when PT_2 =>
+				if(ck_in'event and ck_in'='1')then
+					if(conta_saltos='1')then
+						next_st<= PT;
+					else
+						next_st<= NT;
+					end if;
+			when NT =>
+				if(ck_in'event and ck_in'='1')then
+					if(conta_saltos='1')then
+						next_st<=NT_2;
+					else
+						next_st<= NT;
+					end if;				
+			when NT_2 =>
+				if(ck_in'event and ck_in'='1')then
+					if(conta_saltos='1')then
+						next_st<= PT;
+					else
+						next_st<= NT_2;
+					end if;
+	end process next_state;
+
+	saida_dyn_pred<= salva_endereco when st= PT or st= PT_2 else
+				outalu;
+
+	 saida: entity work.datapath port map(saida_dyn_pred=saida_dyn_pred);
+		
+end dynamic_prediction_unit;
+
 --++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 --++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 -- Datapath structural description
@@ -610,6 +685,7 @@ use work.p_MRstd.all;
    
 entity datapath is
       port(  ck, rst :     in std_logic;
+	     saida_dyn_pred: in stdlogic(31 downto 0);
              i_address :   out std_logic_vector(31 downto 0);
              instruction : in std_logic_vector(31 downto 0);
              d_address :   out std_logic_vector(31 downto 0);
@@ -622,9 +698,9 @@ end datapath;
 
 architecture datapath of datapath is
     signal incpc, pc, npc, IR,  result, R1, R2, RA, RB, RB_X, RA_X, RIN, ext16, cte_im, IMED, op1, op2, 
-           outalu, RALU, MDR, mdr_int, dtpc, op1_R, op2_R : std_logic_vector(31 downto 0) := (others=> '0');
+           outalu, RALU, MDR, mdr_int, dtpc, op1_R, op2_R, salva_endereco : std_logic_vector(31 downto 0) := (others=> '0');
     signal adD, adS : std_logic_vector(4 downto 0) := (others=> '0');    
-    signal inst_branch, inst_grupo1, inst_grupoI: std_logic;   
+    signal inst_branch, inst_grupo1, inst_grupoI, ja_saltou: std_logic;   
     signal salta, ce, cex, pause, condition, flush, jump, bubble, BI_DI_flush, 
 			  DI_EX_flush, EX_ME_flush : std_logic := '0';
 	 signal forwardA, forwardB : std_logic_vector(1 downto 0) := "00";		  
@@ -735,7 +811,15 @@ begin
 			  
 	RB_X <= ME.RALU when forwardB="10" else 
 			  result when forwardB="01" else EX.RB;
-			  
+	
+------------------------------------------------------------------------------------------------------
+	salva_endereco <= outalu when EX.ins_banch = '1' and salta ='1' else
+			 invalid_instruction ;
+	ja_saltou<= '1' when  EX.ins_banch = '1' and salta ='1'else
+		    '0';
+-----------------------------------------------------------------------------------------------------
+	dynamic_prediction_unit: entity work.dynamic_prediction_unit port map (ck_in=>ck, rst_in=>rst,EX_inst_branch=>EX.inst_brach, 				 											ja_saltou=>ja_saltou,salva_endereco=>salva_endereco);
+-----------------------------------------------------------------------------------------------------
 	cex <= ce and not(pause);
 
 	forward_unit : entity work.forward_unit port map (EX_RT=>EX.ir(20 downto 16), 
@@ -759,7 +843,7 @@ begin
         ;                 -- or uins.i=LW or  uins.i=LBU  or uins.i=LUI, or default		 
                  
    -- ALU instantiation
-   inst_alu: entity work.alu port map (op1=>op1, op2=>op2, outalu=>outalu, op_alu=>EX.i);
+   inst_alu: entity work.alu port map (op1=>op1, op2=>op2, outalu=>saida_dyn_pred, op_alu=>EX.i);
                                    
    -- ALU register
    --REG_alu: entity work.regnbit  port map(ck=>ck, rst=>rst, ce=>uins.walu, D=>outalu, Q=>RALU);               
@@ -768,6 +852,7 @@ begin
    salta <=  '1' when ( (RA_X=RB_X  and EX.i=BEQ)  or (RA_X>=0  and EX.i=BGEZ) or
                         (RA_X<=0  and EX.i=BLEZ) or (RA_X/=RB_X and EX.i=BNE) )  else
              '0';
+	
                   
    EX_ME_BAR: entity work.EX_ME_BAR port map(ck=>ck, rst=>EX_ME_flush, ce=>ce, EX=>EX, ME=>ME,
 															outalu=>outalu, salta=>salta, adD=>adD, RB_2=>RB_X, RA_2=>RA_X);          
@@ -801,6 +886,7 @@ begin
    RIN <= WB.npc when (WB.i=JALR or WB.i=JAL) else result;
     
    dtpc <= result when (WB.inst_branch='1' and WB.salta='1') or WB.i=J    or WB.i=JAL or WB.i=JALR or WB.i=JR  
+	
            else incpc; --was else npc
 	jump <= '1' when WB.i=J or WB.i=JAL or WB.i=JALR or WB.i=JR else '0'; 		  
    flush <= '1' when ((WB.inst_branch='1' and WB.salta='1') or jump='1') and (dtpc/=WB.npc) else
