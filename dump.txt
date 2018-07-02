@@ -1,0 +1,51 @@
+Text Segment
+0x00400000  0x3c101001  lui $16,0x00001001    9          lui  $s0,0x1001		#vector_fibs
+0x00400004  0x36100000  ori $16,$16,0x0000000013         ori  $s0,$s0,0x0000	#$
+0x00400008  0x3c151001  lui $21,0x00001001    15         lui  $s5,0x1001	# size
+0x0040000c  0x36b50050  ori $21,$21,0x0000005019         ori  $s5,$s5,0x0050	# 
+0x00400010  0x24150014  addiu $21,$0,0x000000123         addiu   $s5,$zero,0x00000014      # load array size
+0x00400014  0x26520001  addiu $18,$18,0x00000025         addiu   $s2,$s2, 1           # 1 is the known value of first and second Fib. number
+0x00400018  0xae120000  sw $18,0x00000000($16)26         sw   $s2, 0($s0)      # F[0] = 1
+0x0040001c  0xae120004  sw $18,0x00000004($16)29         sw   $s2, 4($s0)      # F[1] = F[0] = 1
+0x00400020  0x24080002  addiu $8,$0,0x0000000230         addiu $t0,$zero,2
+0x00400024  0x02a88823  subu $17,$21,$8       31         subu $s1, $s5, $t0     # Counter for loop, will execute (size-2) times
+0x00400028  0x240a0001  addiu $10,$0,0x000000032         addiu $t2,$zero,1
+0x0040002c  0x8e130000  lw $19,0x00000000($16)34   loop: lw   $s3, 0($s0)      # $s3=F[n-2]
+0x00400030  0x8e140004  lw $20,0x00000004($16)35         lw   $s4, 4($s0)      # $s4=F[n-1]
+0x00400034  0x02749021  addu $18,$19,$20      39         addu  $s2, $s3, $s4    # $s2 = $s3 + $s4 // F[n] = F[n-1] + F[n-2]
+0x00400038  0xae120008  sw $18,0x00000008($16)43         sw   $s2, 8($s0)      # Store newly computed F[n] in array
+0x0040003c  0x26100004  addiu $16,$16,0x00000044         addiu $s0, $s0, 4      # increment address to now-known Fib. number storage
+0x00400040  0x022a8823  subu $17,$17,$10      46         subu $s1, $s1, $t2     # decrement loop counter
+0x00400044  0x1620fff9  bne $17,$0,0xfffffff9 50         bne  $s1,$zero,loop
+0x00400048  0x3c011001  lui $1,0x00001001     58         la   $a0, vector_fibs        # first argument for print (array)
+0x0040004c  0x34240000  ori $4,$1,0x00000000       
+0x00400050  0x00152821  addu $5,$0,$21        59         addu  $a1, $zero, $s5  # second argument for print (size)
+0x00400054  0x0c100018  jal 0x00400060        60         jal  print            # call print routine. 
+0x00400058  0x2402000a  addiu $2,$0,0x0000000a63         li   $v0, 10          # system call for exit
+0x0040005c  0x0000000c  syscall               64         syscall               # Exit!
+0x00400060  0x00044021  addu $8,$0,$4         72   print:addu  $t0, $zero, $a0  # starting address of array of data to be printed
+0x00400064  0x00054821  addu $9,$0,$5         73         addu  $t1, $zero, $a1  # initialize loop counter to array size
+0x00400068  0x3c011001  lui $1,0x00001001     74         la   $a0, head        # load address of the print heading string
+0x0040006c  0x3424008d  ori $4,$1,0x0000008d       
+0x00400070  0x24020004  addiu $2,$0,0x0000000475         li   $v0, 4           # specify Print String service
+0x00400074  0x0000000c  syscall               76         syscall               # print the heading string
+0x00400078  0x8d040000  lw $4,0x00000000($8)  78   out:  lw   $a0, 0($t0)      # load the integer to be printed (the current Fib. number)
+0x0040007c  0x24020001  addiu $2,$0,0x0000000179         li   $v0, 1           # specify Print Integer service
+0x00400080  0x0000000c  syscall               80         syscall               # print fibonacci number
+0x00400084  0x3c011001  lui $1,0x00001001     82         la   $a0, space       # load address of spacer for syscall
+0x00400088  0x3424008b  ori $4,$1,0x0000008b       
+0x0040008c  0x24020004  addiu $2,$0,0x0000000483         li   $v0, 4           # specify Print String service
+0x00400090  0x0000000c  syscall               84         syscall               # print the spacer string
+0x00400094  0x25080004  addiu $8,$8,0x0000000486         addiu $t0, $t0, 4      # increment address of data to be printed
+0x00400098  0x240d0001  addiu $13,$0,0x000000087         addiu $t5,$zero,1
+0x0040009c  0x012d4823  subu $9,$9,$13        88         subu $t1, $t1, $t5    # decrement loop counter
+0x004000a0  0x1d20fff5  bgtz $9,0xfffffff5    89         bgtz $t1, out         # repeat while not finished
+0x004000a4  0x03e00008  jr $31                91         jr   $ra              # return from subroutine
+Data Segment
+0x10010000    0x00000001 0x00000001 0x00000002 0x00000003 0x00000005 0x00000008 0x0000000d 0x00000015 
+0x10010020    0x00000022 0x00000037 0x00000059 0x00000090 0x000000e9 0x00000179 0x00000262 0x000003db 
+0x10010040    0x0000063d 0x00000a18 0x00001055 0x00001a6d 0x00000014 0x20776f48 0x796e616d 0x62694620 
+0x10010060    0x63616e6f 0x6e206963 0x65626d75 0x74207372 0x6567206f 0x6172656e 0x203f6574 0x3c203228 
+0x10010080    0x2078203d 0x31203d3c 0x20002939 0x65685400 0x62694620 0x63616e6f 0x6e206963 0x65626d75 
+0x100100a0    0x61207372 0x0a3a6572 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 
+
